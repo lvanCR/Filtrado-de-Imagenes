@@ -43,32 +43,6 @@ Para utilizar la aplicación, sigue estos sencillos pasos:
     * La aplicación mostrará la **máscara (kernel)** correspondiente al filtro seleccionado (donde aplique).
     * Observa cómo la **imagen procesada** se actualiza en tiempo real, permitiéndote comparar el resultado con la imagen original.
 
-## 🛠️ Instalación y Ejecución Local
-
-Para ejecutar esta aplicación en tu máquina local, sigue estos pasos:
-
-1.  **Clona el repositorio**:
-    ```bash
-    git clone [https://github.com/tu_usuario/nombre_de_tu_repositorio.git](https://github.com/tu_usuario/nombre_de_tu_repositorio.git)
-    cd nombre_de_tu_repositorio
-    ```
-    (Reemplaza `tu_usuario/nombre_de_tu_repositorio` con la ruta real de tu repo)
-
-2.  **Crea un entorno virtual (recomendado)**:
-    ```bash
-    python -m venv venv
-    # En Windows:
-    .\venv\Scripts\activate
-    # En macOS/Linux:
-    source venv/bin/activate
-    ```
-
-3.  **Instala las dependencias**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    (Asegúrate de tener un archivo `requirements.txt` con `streamlit`, `numpy`, `opencv-python`, `Pillow`, `pandas`)
-
 4.  **Ejecuta la aplicación Streamlit**:
     ```bash
     streamlit run app.py
