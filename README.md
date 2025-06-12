@@ -1,36 +1,77 @@
-📷 Descripción del Proyecto
-Aplicación web interactiva para procesamiento de imágenes que permite aplicar diferentes filtros de suavizado y agudizado. Desarrollada con Streamlit y OpenCV para el curso de Matemática Computacional en la UPC.
-✨ Características principales
-Filtros de suavizado: Media simple, media ponderada y mediana
+# 🖼️ Procesamiento de Imágenes con Streamlit y OpenCV
 
-Filtros de agudizado: Operadores Laplaciano (3 variantes) y Sobel (detección de bordes)
+Una aplicación web interactiva para el procesamiento de imágenes, desarrollada con `Streamlit` y `OpenCV` como parte del curso de Matemática Computacional en la Universidad Peruana de Ciencias Aplicadas (UPC). Esta herramienta permite explorar y aplicar diversos filtros de suavizado y agudizado para comprender mejor sus efectos en las imágenes.
 
-Gestión de imágenes:
+## 🚀 Descripción del Proyecto
 
-Uso de imágenes de ejemplo predefinidas
+Este proyecto es una aplicación web interactiva diseñada para demostrar y aplicar diferentes técnicas de filtrado digital de imágenes. Los usuarios pueden experimentar con filtros de suavizado para reducir ruido y filtros de agudizado para realzar detalles y detectar bordes.
 
-Opción para subir tus propias imágenes
+## ✨ Características Principales
 
-Visualización de máscaras: Representación gráfica de los kernels de filtrado
+* **Filtros de Suavizado**:
+    * **Media Simple**: Aplica una máscara de convolución 3x3 de unos, normalizada por 1/9, para un suavizado básico.
+    * **Media Ponderada**: Utiliza una máscara Gaussiana 3x3, normalizada por 1/16, para un suavizado más natural que considera la importancia de los píxeles vecinos.
+    * **Mediana**: Implementa un filtro de mediana con una ventana 3x3, eficaz para eliminar ruido "sal y pimienta" sin distorsionar demasiado los bordes.
 
-Ruido controlado: Aplicación automática de ruido "sal y pimienta" para demostración
-Uso de la aplicación
-Selección de imagen:
+* **Filtros de Agudizado**:
+    * **Operadores Laplacianos**: Incluye 3 variantes de máscaras Laplacianas (clásica de 4 vecinos, 8-conectada positiva y 8-conectada negativa) para realzar bordes y detalles finos.
+    * **Operadores Sobel**: Permite la detección de bordes en direcciones horizontal (Sobel X) y vertical (Sobel Y), fundamentales en el análisis de imágenes.
 
-Elige entre usar una imagen de ejemplo o subir tu propia imagen
+* **Gestión de Imágenes**:
+    * **Imágenes de Ejemplo**: Incluye una colección de imágenes predefinidas para facilitar la demostración y prueba de los filtros.
+    * **Carga de Imágenes Personalizadas**: Ofrece la opción de subir tus propias imágenes (formatos JPG, PNG, JPEG) para un análisis personalizado.
 
-Las imágenes se convierten automáticamente a escala de grises
+* **Visualización de Máscaras (Kernels)**:
+    * Cada filtro convolucional (Media Simple, Media Ponderada, Laplaciano, Sobel) muestra una representación gráfica de su máscara (kernel) utilizada para el procesamiento, facilitando la comprensión de su operación.
 
-Selección de tipo de filtro:
+* **Ruido Controlado**:
+    * Para las imágenes de ejemplo en el modo de suavizado, la aplicación puede aplicar automáticamente ruido "sal y pimienta" de forma controlada, permitiendo evaluar la efectividad de los filtros de reducción de ruido.
 
-Suavizado: Reduce el ruido en imágenes
+## 🖥️ Uso de la Aplicación
 
-Agudizado: Destaca bordes y características
+Para utilizar la aplicación, sigue estos sencillos pasos:
 
-Aplicación de filtros:
+1.  **Selección de Imagen**:
+    * Al iniciar, decide si deseas trabajar con una de las **imágenes de ejemplo** provistas o **subir tu propia imagen**.
+    * Todas las imágenes son convertidas automáticamente a escala de grises para su procesamiento.
 
-Visualiza las máscaras utilizadas por cada filtro
+2.  **Selección de Tipo de Filtro**:
+    * Elige entre **"Suavizado"** (para reducir ruido y suavizar la imagen) o **"Agudizado"** (para destacar bordes y realzar detalles).
 
-Observa los resultados en tiempo real
+3.  **Aplicación y Visualización de Filtros**:
+    * Una vez seleccionado el tipo de filtro, podrás elegir entre las diferentes variantes disponibles (por ejemplo, Media Simple, Media Ponderada, Mediana para suavizado; Laplaciano, Sobel para agudizado).
+    * La aplicación mostrará la **máscara (kernel)** correspondiente al filtro seleccionado (donde aplique).
+    * Observa cómo la **imagen procesada** se actualiza en tiempo real, permitiéndote comparar el resultado con la imagen original.
 
-Compara la imagen original con la procesada
+## 🛠️ Instalación y Ejecución Local
+
+Para ejecutar esta aplicación en tu máquina local, sigue estos pasos:
+
+1.  **Clona el repositorio**:
+    ```bash
+    git clone [https://github.com/tu_usuario/nombre_de_tu_repositorio.git](https://github.com/tu_usuario/nombre_de_tu_repositorio.git)
+    cd nombre_de_tu_repositorio
+    ```
+    (Reemplaza `tu_usuario/nombre_de_tu_repositorio` con la ruta real de tu repo)
+
+2.  **Crea un entorno virtual (recomendado)**:
+    ```bash
+    python -m venv venv
+    # En Windows:
+    .\venv\Scripts\activate
+    # En macOS/Linux:
+    source venv/bin/activate
+    ```
+
+3.  **Instala las dependencias**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    (Asegúrate de tener un archivo `requirements.txt` con `streamlit`, `numpy`, `opencv-python`, `Pillow`, `pandas`)
+
+4.  **Ejecuta la aplicación Streamlit**:
+    ```bash
+    streamlit run app.py
+    ```
+
+    Esto abrirá la aplicación en tu navegador web predeterminado.
