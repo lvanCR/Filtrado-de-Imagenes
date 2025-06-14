@@ -1,12 +1,28 @@
 import numpy as np
+import base64
+from io import BytesIO
+from PIL import Image
+
+def get_image_download_link(img_array, filename, text="Descargar imagen"):
+    # Convertir el array de la imagen a un objeto de imagen PIL
+    img = Image.fromarray(img_array)
+    # Guardar la imagen en un buffer de bytes
+    buffered = BytesIO()
+    img.save(buffered, format="PNG")
+    img_bytes = buffered.getvalue()
+    # Codificar los bytes en base64
+    b64 = base64.b64encode(img_bytes).decode()
+    # Crear el enlace de descarga
+    href = f'<a href="data:image/png;base64,{b64}" download="{filename}">{text}</a>'
+    return href
 
 def agregar_ruido_sal_pimienta(
     imagen, 
-    intensidad=0.08,  # Intensidad reducida para ruido suave
+    intensidad=0.08,  
     tipo="suave", 
-    polarizacion=30,  # Polarización reducida
-    rango_oscuro=(70, 120),   # Rango medio-bajo
-    rango_claro=(130, 180)    # Rango medio-alto
+    polarizacion=30, 
+    rango_oscuro=(70, 120), 
+    rango_claro=(130, 180)    
 ):
     salida = imagen.copy()
     x, y = salida.shape
@@ -36,7 +52,14 @@ def normalizar(imagen_np):
     norm = ((imagen_np - minimo) * (255.0 / (maximo - minimo))).astype(np.uint8)
     return norm
 
-def diferencia(imagen1, imagen2):
-    dif = np.abs(imagen1.astype(np.int16) - imagen2.astype(np.int16))
-    dif = np.clip(dif, 0, 255).astype(np.uint8)
-    return dif
+def get_image_data_for_histogram(image_array):
+    """
+    Obtiene los datos aplanados de una imagen y sus estadísticas para el histograma.
+    Convierte el array a float64 para cálculos precisos, reflejando el rango actual de la imagen.
+    """
+    data_for_hist = image_array.ravel().astype(np.float64)
+    min_val = np.min(data_for_hist)
+    max_val = np.max(data_for_hist)
+    mean_val = np.mean(data_for_hist)
+    std_val = np.std(data_for_hist)
+    return data_for_hist, min_val, max_val, mean_val, std_val
