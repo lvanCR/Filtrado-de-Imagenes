@@ -121,8 +121,6 @@ else:
         st.stop()
 
 
-# CAMBIO CRUCIAL: Asegurarse de que la imagen_np sea float64 desde el inicio
-# para que los filtros puedan producir valores fuera de [0, 255]
 imagen_np = np.array(imagen_pil).astype(np.float64)
 
 # Paso 4: Si es imagen de ejemplo y filtro de suavizado, aplicar ruido
