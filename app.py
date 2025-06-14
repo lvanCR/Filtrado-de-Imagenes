@@ -503,8 +503,8 @@ else: # Agudizado
             - Los valores cercanos a cero indican áreas uniformes o de bajo cambio.
             - El rango dinámico es mayor que [0,255] - ¡Esto es la clave para entender la normalización!
             3. **Filtrada (normalizada):** Imagen final reescalada:
-            - Concentración en extremos (0 y 255) = bordes bien definidos y visibles.
-            - Concentración en medios = áreas uniformes.
+            - Concentración en extremos (0 y 255).
+            - Concentración en medios.
             
             **Características de los filtros de agudizado:**
             - 🎯 **Valores fuera de rango:** Los filtros ahora producen y muestran valores fuera de [0,255] antes de normalizar, evidenciando por qué es necesario el ajuste para la visualización.
