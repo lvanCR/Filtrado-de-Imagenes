@@ -470,7 +470,7 @@ else: # Agudizado
         # En la sección de agudizado, después de mostrar la imagen filtrada y los botones de descarga:
 
         # ================ NUEVA SECCIÓN: ANÁLISIS DE ESCALA DE GRISES ================
-        st.subheader("🔬 Análisis Detallado de Escala de Grises")
+        st.subheader("🔬 Análisis Detallado del Re-escalamiento")
 
         # Obtener los datos y estadísticas para el histograma sin normalizar usando la nueva función
         # Usamos resultado_raw que contiene los valores negativos y mayores a 255
@@ -513,7 +513,6 @@ else: # Agudizado
         st.markdown(f"#### Estadísticas de Imagen Filtrada (sin normalizar)")
         st.write(f"**Valor Mínimo:** {min_val:.2f}")
         st.write(f"**Valor Máximo:** {max_val:.2f}")
-        st.write(f"**Media:** {mean_val:.2f}")
         st.write(f"**Desviación Estándar:** {std_val:.2f}")
         if min_val < 0 or max_val > 255:
             st.warning("⚠️ **¡Atención!** Los valores de los píxeles están fuera del rango estándar [0, 255].")
@@ -626,20 +625,17 @@ else: # Agudizado
             **Proceso de transformación completo:**
             
             1. **Imagen Original:** Distribución típica de una imagen con valores concentrados en el rango medio
-            2. **Filtrada (sin normalizar):** Resultado directo del filtro:
-            - **Ahora, este histograma mostrará los valores reales producidos por el filtro (incluyendo negativos y mayores a 255).**
+            2. **Filtrada (sin normalizar):** Resultado directo del filtro
             - Valores negativos indican transiciones de claro a oscuro (bordes).
             - Valores positivos indican transiciones de oscuro a claro (bordes).
             - Los valores cercanos a cero indican áreas uniformes o de bajo cambio.
-            - El rango dinámico es, de hecho, mayor que [0,255] - ¡Esto es la clave para entender la normalización!
+            - El rango dinámico es mayor que [0,255] - ¡Esto es la clave para entender la normalización!
             3. **Filtrada (normalizada):** Imagen final reescalada:
-            - Concentración en extremos (0 y 255) = bordes bien definidos y visibles.
-            - Concentración en medios = áreas uniformes.
+            - Concentración en extremos (0 y 255).
+            - Concentración en medios.
             
             **Características de los filtros de agudizado:**
             - 🎯 **Valores fuera de rango:** Los filtros ahora producen y muestran valores fuera de [0,255] antes de normalizar, evidenciando por qué es necesario el ajuste para la visualización.
-            - ⚖️ **Centrado en cero:** La media de los valores sin normalizar debería estar cerca de 0, ya que los filtros de agudizado son diferenciales y los bordes claros/oscuros tienden a balancearse. Un pico en 0 es normal porque áreas sin bordes significan "no cambio".
-            - 📊 **Efecto de bordes:** Después de normalizar, los bordes se concentran en los extremos 0 (bordes oscuros) y 255 (bordes claros), haciendo la imagen visible.
             
             **Estadísticas clave:**
             - **Mín/Máx sin normalizar:** Estos valores ahora reflejan el rango completo y real de la salida del filtro.
