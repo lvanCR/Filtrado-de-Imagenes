@@ -11,11 +11,7 @@ import base64
 import matplotlib.pyplot as plt
 from matplotlib.ticker import LogFormatter # Importar LogFormatter
 
-# Desactivar explícitamente el uso de LaTeX para el texto en matplotlib
 plt.rcParams['text.usetex'] = False
-# También puedes considerar especificar una fuente genérica si los problemas persisten
-# plt.rcParams['font.family'] = 'sans-serif'
-# plt.rcParams['font.sans-serif'] = ['DejaVu Sans', 'Arial'] # Añade fuentes comunes
 
 st.markdown("<h1 style='text-align: center;'>Filtrado de Imágenes</h1>", unsafe_allow_html=True)
 
@@ -64,7 +60,7 @@ opcion_imagen = st.radio(
 # Paso 2: Selección de tipo de filtro
 tipo_filtro = st.selectbox("Selecciona el Tipo de Filtro", ["Suavizado", "Agudizado"])
 
-# Función para cargar y procesar imágenes de ejemplo (caché)
+# Función para cargar y procesar imágenes de ejemplo
 @st.cache_data
 def load_example_image(folder, image_name):
     path = os.path.join("imagenes_ejemplo", folder, image_name)
@@ -72,7 +68,7 @@ def load_example_image(folder, image_name):
     return np.array(img_pil) # Devolver como uint8 para empezar
 
 # Paso 3: Cargar imagen según la opción elegida
-imagen_original_np = None # Inicializar fuera de los bloques if/else
+imagen_original_np = None 
 if opcion_imagen == "Subir mi propia imagen":
     uploaded_file = st.file_uploader("Sube tu propia imagen (JPG o PNG)", type=["png", "jpg", "jpeg"])
     if uploaded_file is not None:
@@ -124,9 +120,7 @@ else: # Usar una imagen de ejemplo
         st.error("No se encontró la imagen seleccionada")
         st.stop()
 
-# imagen_para_procesar ahora será la imagen que se usará para aplicar el ruido o los filtros
 imagen_para_procesar = imagen_original_np.copy()
-
 
 # Paso 4: Si es imagen de ejemplo y filtro de suavizado, aplicar ruido
 if opcion_imagen == "Usar una imagen de ejemplo" and tipo_filtro == "Suavizado":
@@ -140,7 +134,6 @@ if opcion_imagen == "Usar una imagen de ejemplo" and tipo_filtro == "Suavizado":
         intensidad = 0.08
         polarizacion = 30
     
-    # Solo aplicar ruido si la imagen de sesión o el tipo de ruido ha cambiado
     if ruido_key not in st.session_state:
         with st.spinner("Aplicando ruido a la imagen..."):
             imagen_con_ruido = agregar_ruido_sal_pimienta(
@@ -156,8 +149,6 @@ if opcion_imagen == "Usar una imagen de ejemplo" and tipo_filtro == "Suavizado":
     imagen_para_procesar = st.session_state[ruido_key]
     st.image(imagen_para_procesar, caption=f"Imagen con ruido sal y pimienta", use_container_width=True)
 else:
-    # Si no es imagen de ejemplo y suavizado, ya se mostró la original o la subida
-    # No es necesario mostrarla de nuevo aquí si ya se mostró arriba.
     pass
 
 
@@ -188,8 +179,6 @@ if tipo_filtro == "Suavizado":
             st.markdown("<div class='mask-title'>Mediana</div>", unsafe_allow_html=True)
         
         # Aplicar todos los filtros
-        # Los filtros de suavizado esperan uint8. imagen_para_procesar ya es uint8 si se añadió ruido,
-        # o imagen_original_np (uint8) si no se añadió.
         with st.spinner("Aplicando filtros de suavizado..."):
             resultado_media_simple = filtro_media_simple(imagen_para_procesar, ksize=3)
             resultado_media_ponderada = filtro_media_ponderada(imagen_para_procesar)
@@ -347,7 +336,6 @@ else: # Agudizado
     if st.session_state.filtro_seleccionado:
         st.markdown(f"**Filtro seleccionado:** {st.session_state.filtro_seleccionado}")
         
-        # Convertir la imagen a float64 solo para los filtros de agudizado
         imagen_para_filtro_agudizado = imagen_original_np.astype(np.float64)
 
         with st.spinner("Aplicando filtro de agudizado..."):
@@ -382,7 +370,8 @@ else: # Agudizado
             unsafe_allow_html=True
         )
 
-        st.subheader("🔬 Análisis Detallado de Escala de Grises")
+        #Histogramas
+        st.subheader("🔬 Análisis Detallado del Re-escalamiento")
 
         vals_sin_normalizar, min_val, max_val, mean_val, std_val = \
             get_image_data_for_histogram(resultado_raw)
@@ -392,7 +381,7 @@ else: # Agudizado
         plt.style.use('ggplot')
 
         ax1 = axes[0]
-        vals_orig = imagen_original_np.ravel() # Usa la imagen original uint8
+        vals_orig = imagen_original_np.ravel()
         ax1.hist(vals_orig, bins=256, range=(0, 256), color='#3498db', alpha=0.8)
         ax1.set_title('Imagen Original', fontsize=12, fontweight='bold')
         ax1.set_xlabel('Valor de Pixel', fontsize=10)
@@ -403,7 +392,7 @@ else: # Agudizado
         ax1.grid(True, linestyle='--', alpha=0.3)
 
         ax1.text(0.98, 0.95, 
-                f"Mín: {np.min(imagen_original_np):.1f}\nMáx: {np.max(imagen_original_np):.1f}\nMedia: {np.mean(imagen_original_np):.1f}\nDesv: {np.std(imagen_original_np):.1f}",
+                f"Mín: {np.min(imagen_original_np):.1f}\nMáx: {np.max(imagen_original_np):.1f}\nDesv: {np.std(imagen_original_np):.1f}",
                 transform=ax1.transAxes, verticalalignment='top', horizontalalignment='right',
                 bbox=dict(boxstyle='round', facecolor='white', alpha=0.8), fontsize=9)
 
@@ -417,14 +406,13 @@ else: # Agudizado
         st.markdown(f"#### Estadísticas de Imagen Filtrada (sin normalizar)")
         st.write(f"**Valor Mínimo:** {min_val:.2f}")
         st.write(f"**Valor Máximo:** {max_val:.2f}")
-        st.write(f"**Media:** {mean_val:.2f}")
         st.write(f"**Desviación Estándar:** {std_val:.2f}")
         if min_val < 0 or max_val > 255:
             st.warning("⚠️ **¡Atención!** Los valores de los píxeles están fuera del rango estándar [0, 255].")
             st.info("ℹ️ **Nota:** Estos son los valores *reales* de salida del filtro antes de la normalización. Muestran por qué es necesaria la normalización para visualizar la imagen correctamente.")
 
 
-        num_bins = 1000  # Increased number of bins for better detail
+        num_bins = 1000 
         bins_sin_normalizar = np.linspace(x_min_lim, x_max_lim, num_bins)
 
         ax2.hist(vals_sin_normalizar, bins=bins_sin_normalizar, color='#e74c3c', alpha=0.8) 
@@ -441,7 +429,7 @@ else: # Agudizado
         ax2.autoscale(enable=False, axis='x') 
         ax2.set_xlim([x_min_lim, x_max_lim])
 
-        stats_text = f"Mín: {min_val:.2f}\nMáx: {max_val:.2f}\nMedia: {mean_val:.2f}\nDesv: {std_val:.2f}"
+        stats_text = f"Mín: {min_val:.2f}\nMáx: {max_val:.2f}\nDesv: {std_val:.2f}"
         if min_val < 0 or max_val > 255:
             stats_text += "\n⚠️ Fuera de [0,255]"
 
@@ -494,7 +482,7 @@ else: # Agudizado
         stats_text = f"Mín: {np.min(vals_normalizado):.1f}\nMáx: {np.max(vals_normalizado):.1f}\n" \
                      f"Píxeles en 0: {porcentaje_min:.1f}%\n" \
                      f"Píxeles en 255: {porcentaje_max:.1f}%\n" \
-                     f"Píxeles en bordes (±{umbral_borde}): {porcentaje_bordes:.1f}%"
+                     f"Píxeles en bordes: {porcentaje_bordes:.1f}%"
         ax3.text(0.98, 0.95, 
                 stats_text,
                 transform=ax3.transAxes, verticalalignment='top', horizontalalignment='right',
@@ -509,19 +497,17 @@ else: # Agudizado
             **Proceso de transformación completo:**
             
             1. **Imagen Original:** Distribución típica de una imagen con valores concentrados en el rango medio
-            2. **Filtrada (sin normalizar):** Resultado directo del filtro:
-            - **Ahora, este histograma mostrará los valores reales producidos por el filtro (incluyendo negativos y mayores a 255).**
+            2. **Filtrada (sin normalizar):** Resultado directo del filtro.
             - Valores negativos indican transiciones de claro a oscuro (bordes).
             - Valores positivos indican transiciones de oscuro a claro (bordes).
             - Los valores cercanos a cero indican áreas uniformes o de bajo cambio.
-            - El rango dinámico es, de hecho, mayor que [0,255] - ¡Esto es la clave para entender la normalización!
+            - El rango dinámico es mayor que [0,255] - ¡Esto es la clave para entender la normalización!
             3. **Filtrada (normalizada):** Imagen final reescalada:
             - Concentración en extremos (0 y 255) = bordes bien definidos y visibles.
             - Concentración en medios = áreas uniformes.
             
             **Características de los filtros de agudizado:**
             - 🎯 **Valores fuera de rango:** Los filtros ahora producen y muestran valores fuera de [0,255] antes de normalizar, evidenciando por qué es necesario el ajuste para la visualización.
-            - ⚖️ **Centrado en cero:** La media de los valores sin normalizar debería estar cerca de 0, ya que los filtros de agudizado son diferenciales y los bordes claros/oscuros tienden a balancearse. Un pico en 0 es normal porque áreas sin bordes significan "no cambio".
             - 📊 **Efecto de bordes:** Después de normalizar, los bordes se concentran en los extremos 0 (bordes oscuros) y 255 (bordes claros), haciendo la imagen visible.
             
             **Estadísticas clave:**
