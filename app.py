@@ -121,6 +121,8 @@ else:
         st.stop()
 
 
+# CAMBIO CRUCIAL: Asegurarse de que la imagen_np sea float64 desde el inicio
+# para que los filtros de agudizado puedan producir valores fuera de [0, 255]
 imagen_np = np.array(imagen_pil).astype(np.float64)
 
 # Paso 4: Si es imagen de ejemplo y filtro de suavizado, aplicar ruido
@@ -228,36 +230,36 @@ if tipo_filtro == "Suavizado":
         with cols[2]:
             st.markdown("<div class='mask-title'>Mediana</div>", unsafe_allow_html=True)
         
+        # CAMBIO: Convertir imagen_np a uint8 para filtros de suavizado
+        imagen_np_uint8_para_suavizado = imagen_np.astype(np.uint8)
+
         # Aplicar todos los filtros
-        resultado_media_simple = filtro_media_simple(imagen_np, ksize=3)
-        resultado_media_ponderada = filtro_media_ponderada(imagen_np)
-        resultado_mediana = filtro_mediana(imagen_np, ksize=3)
+        resultado_media_simple = filtro_media_simple(imagen_np_uint8_para_suavizado, ksize=3)
+        resultado_media_ponderada = filtro_media_ponderada(imagen_np_uint8_para_suavizado)
+        resultado_mediana = filtro_mediana(imagen_np_uint8_para_suavizado, ksize=3)
         
         cols = st.columns([1, 1, 1])
         with cols[0]:
-            # Convertir a uint8 para la visualización antes de mostrar
-            st.image(resultado_media_simple.astype(np.uint8), use_container_width=True)
+            st.image(resultado_media_simple, use_container_width=True)
             st.markdown(
                 f'<div class="action-buttons">'
-                f'{get_image_download_link(resultado_media_simple.astype(np.uint8), "media_simple.png", "📥 Descargar")}'
+                f'{get_image_download_link(resultado_media_simple, "media_simple.png", "📥 Descargar")}'
                 f'</div>', 
                 unsafe_allow_html=True
             )
         with cols[1]:
-            # Convertir a uint8 para la visualización antes de mostrar
-            st.image(resultado_media_ponderada.astype(np.uint8), use_container_width=True)
+            st.image(resultado_media_ponderada, use_container_width=True)
             st.markdown(
                 f'<div class="action-buttons">'
-                f'{get_image_download_link(resultado_media_ponderada.astype(np.uint8), "media_ponderada.png", "📥 Descargar")}'
+                f'{get_image_download_link(resultado_media_ponderada, "media_ponderada.png", "📥 Descargar")}'
                 f'</div>', 
                 unsafe_allow_html=True
             )
         with cols[2]:
-            # Convertir a uint8 para la visualización antes de mostrar
-            st.image(resultado_mediana.astype(np.uint8), use_container_width=True)
+            st.image(resultado_mediana, use_container_width=True)
             st.markdown(
                 f'<div class="action-buttons">'
-                f'{get_image_download_link(resultado_mediana.astype(np.uint8), "mediana.png", "📥 Descargar")}'
+                f'{get_image_download_link(resultado_mediana, "mediana.png", "📥 Descargar")}'
                 f'</div>', 
                 unsafe_allow_html=True
             )
@@ -467,8 +469,8 @@ else: # Agudizado
         )
         # En la sección de agudizado, después de mostrar la imagen filtrada y los botones de descarga:
 
-        # ================ NUEVA SECCIÓN: ANÁLISIS DEL RE-ESCALAMIENTO ================
-        st.subheader("🔬 Análisis Detallado del re-escalamiento")
+        # ================ NUEVA SECCIÓN: ANÁLISIS DE ESCALA DE GRISES ================
+        st.subheader("🔬 Análisis Detallado de Escala de Grises")
 
         # Obtener los datos y estadísticas para el histograma sin normalizar usando la nueva función
         # Usamos resultado_raw que contiene los valores negativos y mayores a 255
@@ -511,8 +513,11 @@ else: # Agudizado
         st.markdown(f"#### Estadísticas de Imagen Filtrada (sin normalizar)")
         st.write(f"**Valor Mínimo:** {min_val:.2f}")
         st.write(f"**Valor Máximo:** {max_val:.2f}")
+        st.write(f"**Media:** {mean_val:.2f}")
+        st.write(f"**Desviación Estándar:** {std_val:.2f}")
         if min_val < 0 or max_val > 255:
             st.warning("⚠️ **¡Atención!** Los valores de los píxeles están fuera del rango estándar [0, 255].")
+            st.info("ℹ️ **Nota:** Estos son los valores *reales* de salida del filtro antes de la normalización. Muestran por qué es necesaria la normalización para visualizar la imagen correctamente.")
 
 
         # Create bins that span the entire range with sufficient density
@@ -536,7 +541,7 @@ else: # Agudizado
         ax2.set_xlim([x_min_lim, x_max_lim])
 
         # Añadir estadísticas precisas en el gráfico (con los mismos valores que los de arriba)
-        stats_text = f"Mín: {min_val:.2f}\nMáx: {max_val:.2f}\nDesv: {std_val:.2f}"
+        stats_text = f"Mín: {min_val:.2f}\nMáx: {max_val:.2f}\nMedia: {mean_val:.2f}\nDesv: {std_val:.2f}"
         if min_val < 0 or max_val > 255:
             stats_text += "\n⚠️ Fuera de [0,255]"
 
@@ -602,10 +607,10 @@ else: # Agudizado
 
         # Añadir estadísticas con enfoque en los extremos
         ax3.text(0.98, 0.95, 
-                f"Mín: {np.min(vals_normalizado):.1f}\nMáx: {np.max(vals_normalizado):.1f}\nDesv: {np.std(vals_normalizado):.1f}\n"
+                f"Mín: {np.min(vals_normalizado):.1f}\nMáx: {np.max(vals_normalizado):.1f}\n"
                 f"Píxeles en 0: {porcentaje_min:.1f}%\n"
                 f"Píxeles en 255: {porcentaje_max:.1f}%\n"
-                f"Píxeles en bordes: {porcentaje_bordes:.1f}%", # Indicar el umbral
+                f"Píxeles en bordes (±{umbral_borde}): {porcentaje_bordes:.1f}%", # Indicar el umbral
                 transform=ax3.transAxes, verticalalignment='top', horizontalalignment='right',
                 bbox=dict(boxstyle='round', facecolor='white', alpha=0.8), fontsize=9)
 
@@ -622,19 +627,22 @@ else: # Agudizado
             
             1. **Imagen Original:** Distribución típica de una imagen con valores concentrados en el rango medio
             2. **Filtrada (sin normalizar):** Resultado directo del filtro:
+            - **Ahora, este histograma mostrará los valores reales producidos por el filtro (incluyendo negativos y mayores a 255).**
             - Valores negativos indican transiciones de claro a oscuro (bordes).
             - Valores positivos indican transiciones de oscuro a claro (bordes).
             - Los valores cercanos a cero indican áreas uniformes o de bajo cambio.
-            - El rango dinámico es mayor que el rango de [0,255] - ¡Esto es la clave para entender la normalización!
+            - El rango dinámico es, de hecho, mayor que [0,255] - ¡Esto es la clave para entender la normalización!
             3. **Filtrada (normalizada):** Imagen final reescalada:
-            - Concentración en extremos (0 y 255).
-            - Concentración en medios
+            - Concentración en extremos (0 y 255) = bordes bien definidos y visibles.
+            - Concentración en medios = áreas uniformes.
             
             **Características de los filtros de agudizado:**
             - 🎯 **Valores fuera de rango:** Los filtros ahora producen y muestran valores fuera de [0,255] antes de normalizar, evidenciando por qué es necesario el ajuste para la visualización.
+            - ⚖️ **Centrado en cero:** La media de los valores sin normalizar debería estar cerca de 0, ya que los filtros de agudizado son diferenciales y los bordes claros/oscuros tienden a balancearse. Un pico en 0 es normal porque áreas sin bordes significan "no cambio".
+            - 📊 **Efecto de bordes:** Después de normalizar, los bordes se concentran en los extremos 0 (bordes oscuros) y 255 (bordes claros), haciendo la imagen visible.
             
             **Estadísticas clave:**
             - **Mín/Máx sin normalizar:** Estos valores ahora reflejan el rango completo y real de la salida del filtro.
-            - **Píxeles en bordes:** Porcentaje de píxeles que representan bordes fuertes.
+            - **Píxeles en bordes:** Porcentaje de píxeles que representan bordes fuertes. Ahora se calcula con una tolerancia para mayor precisión.
             - **Desviación Estándar:** Mide el contraste general (mayor = más bordes definidos).
             """)
